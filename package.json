@@ -1,0 +1,15 @@
+{
+  "name": "cast-to-sonos-firefox",
+  "version": "1.0.0",
+  "description": "Cast audio from any Firefox tab directly to your Sonos speakers — 100% free, local LAN, HD Stereo & Lossless PCM, automatic video frame sync, and rich Sonos app metadata.",
+  "type": "module",
+  "scripts": {
+    "start": "node bridge/server.js",
+    "test": "node --test test/bridge.test.js",
+    "pack:xpi": "node scripts/pack-extension.js"
+  },
+  "dependencies": {
+    "@breezystack/lamejs": "^1.2.7",
+    "ws": "^8.18.0"
+  }
+}

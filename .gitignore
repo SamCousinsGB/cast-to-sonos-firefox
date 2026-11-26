@@ -1,0 +1,7 @@
+node_modules/
+dist/
+bridge/native-host.bat
+bridge/cast_to_sonos_firefox.json
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cast to Sonos for Firefox — Options</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <img src="../icons/icon.svg" alt="" class="logo" />
+      <div>
+        <h1>Cast to Sonos for Firefox</h1>
+        <p>100% local LAN streaming — no accounts, no cloud relay, no subscriptions.</p>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>Connection &amp; Audio Defaults</h2>
+
+      <div class="field">
+        <label for="bridgePort">Local Bridge Port</label>
+        <input id="bridgePort" type="number" min="1024" max="65535" value="41900" />
+        <small>Default is 41900. Must match the local Node bridge port.</small>
+      </div>
+
+      <div class="field">
+        <label for="defaultQuality">Default Stream Quality</label>
+        <select id="defaultQuality">
+          <option value="mono">Standard Mono (96 kbps MP3)</option>
+          <option value="stereo">HD Stereo (192 kbps MP3)</option>
+          <option value="hifi">Hi-Fi Stereo (320 kbps MP3)</option>
+          <option value="lossless">Lossless PCM (44.1/48 kHz WAV)</option>
+        </select>
+      </div>
+
+      <div class="checkbox-row">
+        <input id="muteLocalTab" type="checkbox" checked />
+        <label for="muteLocalTab">Mute browser tab locally while casting (prevents speaker echo)</label>
+      </div>
+
+      <div class="checkbox-row">
+        <input id="dynamicColors" type="checkbox" checked />
+        <label for="dynamicColors">Dynamic Color Matching (adapt popup tint to active tab)</label>
+      </div>
+
+      <div class="field">
+        <label for="frameSyncDelayMs">Default Video Frame Sync Delay (ms)</label>
+        <input id="frameSyncDelayMs" type="number" min="0" max="5000" step="50" value="2100" />
+        <small>Typical Sonos HTTP buffer latency is 1800–2500 ms.</small>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Saved Manual Speaker IPs</h2>
+      <p class="desc">Useful if your Sonos speakers are on a different VLAN or SSDP multicast is blocked.</p>
+      <div id="manualIpList" class="ip-list"></div>
+    </section>
+
+    <section class="card danger-zone">
+      <h2>One-Click Reset</h2>
+      <p class="desc">Clears all saved preferences and manual IPs from Firefox storage.</p>
+      <div class="actions">
+        <button id="saveBtn" class="btn btn-primary">Save Settings</button>
+        <button id="resetBtn" class="btn btn-danger">Clear Data &amp; Reset</button>
+      </div>
+      <div id="statusMsg" class="status-msg"></div>
+    </section>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

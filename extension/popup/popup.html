@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cast to Sonos for Firefox</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Top Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="../icons/icon.svg" alt="" class="brand-icon" />
+        <div class="brand-text">
+          <span class="brand-name">Cast to Sonos</span>
+          <span class="brand-sub">Firefox Edition</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="statusPill" class="status-pill status-checking">
+          <span class="dot"></span>
+          <span id="statusText">Checking...</span>
+        </span>
+        <button id="refreshBtn" class="icon-btn" title="Rescan Sonos speakers" aria-label="Rescan Sonos speakers">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36L21 8" />
+            <polyline points="21 3 21 8 16 8" />
+          </svg>
+        </button>
+        <button id="optionsBtn" class="icon-btn" title="Extension settings" aria-label="Settings">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.6.85 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Now Playing / Active Tab Card -->
+    <section class="now-card">
+      <div class="artwork-wrap">
+        <img id="tabArtwork" class="artwork" src="../icons/icon.svg" alt="" />
+        <div id="liveBadge" class="live-badge hidden">LIVE</div>
+      </div>
+      <div class="now-meta">
+        <div id="tabTitle" class="now-title">Loading active tab...</div>
+        <div id="tabArtist" class="now-artist">Firefox</div>
+        <div id="vuMeter" class="vu-meter hidden" aria-label="Live stereo audio level">
+          <div class="vu-row"><span>L</span><div class="vu-track"><div id="vuLeft" class="vu-fill"></div></div></div>
+          <div class="vu-row"><span>R</span><div class="vu-track"><div id="vuRight" class="vu-fill"></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Warnings / Error Banner -->
+    <div id="alertBanner" class="alert-banner hidden"></div>
+
+    <!-- Bridge Offline Card -->
+    <section id="offlineCard" class="offline-card hidden">
+      <div class="offline-title">Local Sonos Bridge Offline</div>
+      <p class="offline-desc">
+        Start the lightweight local Node bridge on your PC so Sonos speakers on your Wi-Fi can pull audio directly from Firefox (100% local, zero cloud).
+      </p>
+      <div class="code-pill">start-bridge.bat &nbsp;or&nbsp; npm start</div>
+      <button id="retryBridgeBtn" class="btn btn-primary btn-full">Reconnect to Bridge</button>
+    </section>
+
+    <!-- Main Connected Controls -->
+    <main id="mainControls" class="main-controls hidden">
+      <!-- Speaker List -->
+      <section class="section">
+        <div class="section-head">
+          <span class="section-label">Sonos Rooms &amp; Groups</span>
+          <button id="toggleManualIpBtn" class="text-btn">+ Manual IP</button>
+        </div>
+
+        <form id="manualIpForm" class="manual-ip-form hidden">
+          <input
+            id="manualIpInput"
+            type="text"
+            placeholder="e.g. 192.168.1.50"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button type="submit" class="btn btn-secondary btn-sm">Add</button>
+        </form>
+
+        <div id="deviceList" class="device-list">
+          <div class="empty-state">Searching local network for Sonos speakers...</div>
+        </div>
+      </section>
+
+      <!-- Quality Presets -->
+      <section class="section">
+        <div class="section-head">
+          <span class="section-label">Audio Quality</span>
+          <span class="badge-free">All Free</span>
+        </div>
+        <div id="qualityGrid" class="quality-grid">
+          <button class="quality-pill" data-quality="mono">
+            <strong>Mono</strong>
+            <span>96 kbps</span>
+          </button>
+          <button class="quality-pill" data-quality="stereo">
+            <strong>Stereo</strong>
+            <span>192 kbps</span>
+          </button>
+          <button class="quality-pill active" data-quality="hifi">
+            <strong>Hi-Fi</strong>
+            <span>320 kbps</span>
+          </button>
+          <button class="quality-pill" data-quality="lossless">
+            <strong>Lossless</strong>
+            <span>WAV PCM</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Primary Cast + Transport Actions -->
+      <section class="action-bar">
+        <button id="castBtn" class="btn btn-primary btn-cast" disabled>
+          <span id="castBtnLabel">Cast Tab to Sonos</span>
+        </button>
+        <button id="playPauseBtn" class="btn btn-secondary btn-square hidden" title="Play / Pause" aria-label="Play or Pause">
+          <svg id="playPauseIcon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+        </button>
+      </section>
+      <button id="switchTabBtn" class="btn btn-secondary btn-full btn-sm hidden" style="margin-bottom: 11px;">
+        Switch Cast to Current Tab
+      </button>
+
+      <!-- Volume & Local Mute -->
+      <section id="volumeSection" class="section card-subtle">
+        <div class="control-row">
+          <button id="sonosMuteBtn" class="icon-btn icon-btn-sm" title="Mute Sonos" aria-label="Mute Sonos">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            </svg>
+          </button>
+          <input id="volumeSlider" type="range" min="0" max="100" value="30" class="slider" />
+          <span id="volumeValue" class="value-chip">30%</span>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Mute Tab on Computer</div>
+            <div class="toggle-sub">Prevents echo with Sonos speakers</div>
+          </div>
+          <label class="switch">
+            <input id="localMuteToggle" type="checkbox" checked />
+            <span class="switch-track"></span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Automatic Video Frame Sync -->
+      <section class="section card-subtle">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-title">Automatic Video Frame Sync</div>
+            <div class="toggle-sub">Delays video frames to match Sonos lip-sync</div>
+          </div>
+          <label class="switch">
+            <input id="frameSyncToggle" type="checkbox" />
+            <span class="switch-track"></span>
+          </label>
+        </div>
+
+        <div id="syncControls" class="sync-controls hidden">
+          <div class="control-row">
+            <span class="sync-label">Offset</span>
+            <input id="syncDelaySlider" type="range" min="0" max="4500" step="50" value="2100" class="slider" />
+            <span id="syncDelayValue" class="value-chip">2.10s</span>
+          </div>
+          <div class="sync-footer">
+            <span id="measuredLatencyLabel" class="muted-small">Estimated buffer: 2.10s</span>
+            <button id="autoSyncBtn" class="text-btn">Auto-Align</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
